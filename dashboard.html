@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - LinkTree Clone</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">LinkTree Clone</div>
+            <ul>
+                <li><a href="#" id="logout">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="dashboard">
+            <h2>Your LinkTree</h2>
+            <div id="link-list"></div>
+            <form id="add-link-form">
+                <h3>Add New Link</h3>
+                <div>
+                    <label for="link-title">Title:</label>
+                    <input type="text" id="link-title" name="title" required>
+                </div>
+                <div>
+                    <label for="link-url">URL:</label>
+                    <input type="url" id="link-url" name="url" required>
+                </div>
+                <button type="submit">Add Link</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 LinkTree Clone. All rights reserved.</p>
+    </footer>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
