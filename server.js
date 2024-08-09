@@ -30,8 +30,8 @@ const User = mongoose.model('User', userSchema);
 // Routes
 app.post('/api/auth/signup', async (req, res) => {
   try {
-    let email = "test@example.com";
-    let password = "Password123";
+    const { email, password } = req.body;
+    
 
     // Check if user already exists
     let user = await User.findOne({ email });
