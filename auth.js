@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', () => {
     const signinForm = document.getElementById('signin-form');
     const signupForm = document.getElementById('signup-form');
@@ -67,104 +66,58 @@ document.addEventListener('DOMContentLoaded', () => {
     // Sign-in form submission
     signinForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const email = document.getElementById('email');
-        const password = document.getElementById('password');
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
 
-        clearError(email);
-        clearError(password);
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/signin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
 
-        let isValid = true;
-
-        if (!validateEmail(email.value)) {
-            showError(email, 'Please enter a valid email address');
-            isValid = false;
-        }
-
-        if (!validatePassword(password.value)) {
-            showError(password, 'Password must be at least 8 characters long');
-            isValid = false;
-        }
-
-        if (isValid) {
-            try {
-                const response = await fetch('http://localhost:5000/api/auth/signin', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ email: email.value, password: password.value }),
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    localStorage.setItem('token', data.token);
-                    window.location.href = '/dashboard.html';
-                } else {
-                    const errorData = await response.json();
-                    alert(errorData.message || 'Sign in failed');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred. Please try again.');
+            if (response.ok) {
+                const data = await response.json();
+                localStorage.setItem('token', data.token);
+                window.location.href = '/dashboard.html';
+            } else {
+                const errorData = await response.json();
+                alert(errorData.message || 'Sign in failed');
             }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
         }
     });
 
     // Sign-up form submission
     signupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const email = document.getElementById('signup-email');
-        const password = document.getElementById('signup-password');
-        const confirmPassword = document.getElementById('confirm-password');
+        const email = document.getElementById('signup-email').value;
+        const password = document.getElementById('signup-password').value;
 
-        clearError(email);
-        clearError(password);
-        clearError(confirmPassword);
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
 
-        let isValid = true;
-
-        if (!validateEmail(email.value)) {
-            showError(email, 'Please enter a valid email address');
-            isValid = false;
-        }
-
-        if (!validatePassword(password.value)) {
-            showError(password, 'Password must be at least 8 characters long');
-            isValid = false;
-        }
-
-        if (password.value !== confirmPassword.value) {
-            showError(confirmPassword, 'Passwords do not match');
-            isValid = false;
-        }
-
-        if (isValid) {
-            try {
-                const response = await fetch('/api/auth/signin', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ email: email.value, password: password.value }),
-                });
-    
-                console.log('Response status:', response.status);
-                console.log('Response headers:', response.headers);
-    
-                const responseText = await response.text();
-                console.log('Response text:', responseText);
-    
-                if (response.ok) {
-                    const data = JSON.parse(responseText);
-                    localStorage.setItem('token', data.token);
-                    window.location.href = '/dashboard.html';
-                } else {
-                    alert(responseText || 'Sign in failed');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred. Please try again.');
+            if (response.ok) {
+                const data = await response.json();
+                localStorage.setItem('token', data.token);
+                window.location.href = '/dashboard.html';
+            } else {
+                const errorData = await response.json();
+                alert(errorData.message || 'Sign up failed');
             }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
         }
     });
 });

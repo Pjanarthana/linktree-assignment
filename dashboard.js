@@ -1,12 +1,16 @@
+// dashboard.js
+
 document.addEventListener('DOMContentLoaded', () => {
     const linkList = document.getElementById('link-list');
     const addLinkForm = document.getElementById('add-link-form');
     const logoutButton = document.getElementById('logout');
 
+    const API_BASE_URL = 'http://localhost:5000';  // Ensure this matches your backend's URL
+
     // Fetch and display user's links
     const fetchLinks = async () => {
         try {
-            const response = await fetch('/api/links', {
+            const response = await fetch(`${API_BASE_URL}/api/links`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
@@ -15,10 +19,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const links = await response.json();
                 displayLinks(links);
             } else {
-                console.error('Failed to fetch links');
+                const errorData = await response.json();
+                console.error('Failed to fetch links:', errorData.message);
+                alert('Failed to fetch links: ' + errorData.message);
             }
         } catch (error) {
             console.error('Error:', error);
+            alert('An error occurred while fetching links');
         }
     };
 
@@ -53,7 +60,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const url = document.getElementById('link-url').value;
 
         try {
-            const response = await fetch('/api/links', {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error('No token found. Please log in again.');
+            }
+
+            const response = await fetch(`${API_BASE_URL}/api/links`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -63,71 +75,20 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (response.ok) {
-                addLinkForm.reset();
-                fetchLinks();
+                const data = await response.json();
+                console.log('Link added:', data);
+                // Optionally, you can update the UI or clear the form fields
+                document.getElementById('link-title').value = '';
+                document.getElementById('link-url').value = '';
             } else {
-                console.error('Failed to add link');
+                console.error('Failed to add link:', response.statusText);
+                const text = await response.text();
+                console.log("Response text:", text);
             }
         } catch (error) {
             console.error('Error:', error);
         }
     };
-
-    // Handle editing a link
-    const handleEditLink = async (e) => {
-        const linkId = e.target.getAttribute('data-id');
-        const linkElement = e.target.closest('.link-item');
-        const currentTitle = linkElement.querySelector('h3').textContent;
-        const currentUrl = linkElement.querySelector('p').textContent;
-
-        const newTitle = prompt('Enter new title:', currentTitle);
-        const newUrl = prompt('Enter new URL:', currentUrl);
-
-        if (newTitle && newUrl) {
-            try {
-                const response = await fetch(`/api/links/${linkId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    },
-                    body: JSON.stringify({ title: newTitle, url: newUrl })
-                });
-
-                if (response.ok) {
-                    fetchLinks();
-                } else {
-                    console.error('Failed to update link');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-    };
-
-    // Handle deleting a link
-    const handleDeleteLink = async (e) => {
-        const linkId = e.target.getAttribute('data-id');
-        if (confirm('Are you sure you want to delete this link?')) {
-            try {
-                const response = await fetch(`/api/links/${linkId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-
-                if (response.ok) {
-                    fetchLinks();
-                } else {
-                    console.error('Failed to delete link');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-    };
-
     // Handle user logout
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -137,6 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listeners
     addLinkForm.addEventListener('submit', handleAddLink);
     logoutButton.addEventListener('click', handleLogout);
+    document.getElementById('add-link-form').addEventListener('submit', handleAddLink);
 
     // Initial fetch of links
     fetchLinks();
